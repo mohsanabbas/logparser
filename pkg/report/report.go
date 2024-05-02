@@ -7,15 +7,17 @@ import (
 	"strings"
 )
 
-func GenerateReport(games []parser.GameInterface) {
-	for i, game := range games {
+// GenerateReport processes each game received from the channel.
+func GenerateReport(games <-chan parser.GameInterface) {
+	var gameIndex = 1
+	for game := range games {
 		uniquePlayers := make(map[string]bool)
 		var playerList []string
 
 		gameData := map[string]interface{}{
 			"total_kills":    game.GetTotalKills(),
 			"players":        []string{},
-			"kills":          map[string]int{},
+			"kills":          make(map[string]int),
 			"kills_by_means": game.GetKillsByMeans(),
 		}
 
@@ -23,7 +25,7 @@ func GenerateReport(games []parser.GameInterface) {
 			playerName := cleanPlayerName(player.GetName())
 
 			if playerName == "<world>" {
-				continue // Skip adding <world> to the player list
+				continue
 			}
 			if _, exists := uniquePlayers[playerName]; !exists {
 				uniquePlayers[playerName] = true
@@ -34,7 +36,8 @@ func GenerateReport(games []parser.GameInterface) {
 
 		gameData["players"] = playerList
 		gameJSON, _ := json.MarshalIndent(gameData, "", "  ")
-		fmt.Printf("game-%d: %s\n", i+1, string(gameJSON))
+		fmt.Printf("game-%d: %s\n", gameIndex, string(gameJSON))
+		gameIndex++
 	}
 }
 

@@ -6,7 +6,7 @@ import (
 )
 
 type GameParser interface {
-	ParseGames(entries <-chan logreader.LogEntry) ([]GameInterface, error)
+	ParseGames(entries <-chan logreader.LogEntry, games chan<- GameInterface) error
 }
 
 type quakeGameParser struct {
@@ -19,20 +19,18 @@ func NewParser(parser KillParser) GameParser {
 	}
 }
 
-func (qgp quakeGameParser) ParseGames(entries <-chan logreader.LogEntry) ([]GameInterface, error) {
-	var games []GameInterface
+func (qgp quakeGameParser) ParseGames(entries <-chan logreader.LogEntry, games chan<- GameInterface) error {
 	var currentGame *Game
 
 	for entry := range entries {
 		if entry.Err != nil {
-			return nil, entry.Err
+			return entry.Err
 		}
-
 		line := entry.Line
 		switch {
 		case strings.Contains(line, "InitGame:"):
 			if currentGame != nil {
-				games = append(games, currentGame)
+				games <- currentGame
 			}
 			currentGame = &Game{
 				ID:           len(games) + 1,
@@ -47,8 +45,10 @@ func (qgp quakeGameParser) ParseGames(entries <-chan logreader.LogEntry) ([]Game
 	}
 
 	if currentGame != nil {
-		games = append(games, currentGame) // Append any remaining game not yet added
+		games <- currentGame
 	}
 
-	return games, nil
+	close(games)
+
+	return nil
 }

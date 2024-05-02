@@ -25,11 +25,14 @@ func main() {
 
 	kp := parser.NewKillParser()
 	qgp := parser.NewParser(kp)
-	games, err := qgp.ParseGames(logEntries)
-	if err != nil {
-		log.Fatal(err)
-	}
+
+	gamesChan := make(chan parser.GameInterface)
+	go func() {
+		if err := qgp.ParseGames(logEntries, gamesChan); err != nil {
+			log.Fatal(err)
+		}
+	}()
 
 	// Generate the report
-	report.GenerateReport(games)
+	report.GenerateReport(gamesChan)
 }
