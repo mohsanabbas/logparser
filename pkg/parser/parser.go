@@ -11,15 +11,17 @@ type GameParser interface {
 
 type quakeGameParser struct {
 	parser KillParser
+	gameID int
 }
 
 func NewParser(parser KillParser) GameParser {
 	return &quakeGameParser{
 		parser: parser,
+		gameID: 0,
 	}
 }
 
-func (qgp quakeGameParser) ParseGames(entries <-chan logreader.LogEntry, games chan<- GameInterface) error {
+func (qgp *quakeGameParser) ParseGames(entries <-chan logreader.LogEntry, games chan<- GameInterface) error {
 	var currentGame *Game
 
 	for entry := range entries {
@@ -32,8 +34,9 @@ func (qgp quakeGameParser) ParseGames(entries <-chan logreader.LogEntry, games c
 			if currentGame != nil {
 				games <- currentGame
 			}
+			qgp.gameID++
 			currentGame = &Game{
-				ID:           len(games) + 1,
+				ID:           qgp.gameID,
 				Players:      make(map[string]*Player),
 				KillsByMeans: make(map[string]int),
 			}

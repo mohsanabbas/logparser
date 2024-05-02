@@ -9,7 +9,6 @@ import (
 
 // GenerateReport processes each game received from the channel.
 func GenerateReport(games <-chan parser.GameInterface) {
-	var gameIndex = 1
 	for game := range games {
 		uniquePlayers := make(map[string]bool)
 		var playerList []string
@@ -36,8 +35,7 @@ func GenerateReport(games <-chan parser.GameInterface) {
 
 		gameData["players"] = playerList
 		gameJSON, _ := json.MarshalIndent(gameData, "", "  ")
-		fmt.Printf("game-%d: %s\n", gameIndex, string(gameJSON))
-		gameIndex++
+		fmt.Printf("game-%d: %s\n", game.GetID(), string(gameJSON))
 	}
 }
 
