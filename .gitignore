@@ -1,0 +1,44 @@
+# Compiled Object files, Static and Dynamic libs (Shared Objects)
+*.o
+*.a
+*.so
+
+# Folders
+/bin/
+
+# Architecture specific extensions/prefixes
+*.[568vq]
+[568vq].out
+
+# Build artifacts
+*.exe
+*.test
+*.dll
+
+# Output of the Go coverage tool
+*.out
+*.cover
+
+# Dependency directories (remove the comment below to include it)
+# vendor/
+
+# Logs and databases
+#*.log
+*.sql
+*.sqlite
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Editor folders and files
+.idea/
+.vscode/
+*.swp
+*~
+.project
